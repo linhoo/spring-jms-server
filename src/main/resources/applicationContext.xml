@@ -1,29 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xmlns:amq="http://activemq.apache.org/schema/core"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-    http://www.springframework.org/schema/beans/spring-beans.xsd">
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/jms
+    http://www.springframework.org/schema/jms/spring-jms.xsd
+    http://activemq.apache.org/schema/core
+    http://activemq.apache.org/schema/core/activemq-core-5.10.0.xsd">
     
     <!-- Spring Enhanced ConnectionFactory -->
+    <!--
     <bean id="connectionFactory" class="org.apache.activemq.spring.ActiveMQConnectionFactory">
         <property name="brokerURL" value="tcp://localhost:61616"/>
     </bean>
+    -->
     
-<!-- ActiveMQ own ConnectionFactory
+	<!-- ActiveMQ own ConnectionFactory, equivalent to amq:connectionFactory
     <bean id="connectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
         <property name="brokerURL" value="tcp://localhost:61616"/>
     </bean>
--->
-    
-    <bean id="queue" class="org.apache.activemq.command.ActiveMQQueue">
+	-->
+	<amq:connectionFactory id="connectionFactory" brokerURL="tcp://localhost:61616"/>
+	
+	<!-- queue destination, equivalent to amq:queue
+	<bean id="queue" class="org.apache.activemq.command.ActiveMQQueue">
     	<constructor-arg value="mailbox-destination"/>
     </bean>
+    -->
+    <amq:queue id="queue" physicalName="mailbox-destination"/>
+
+	<bean id="messageHandler" class="org.tobby.jms.spring.server.receive.MessageReceiver"/>
     
     <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
     	<property name="connectionFactory" ref="connectionFactory"/>
-    	<property name="defaultDestinationName" value="mailbox-destination"/>
-    	<!-- the substitute for defaultDestinationName
-    		<property name="defaultDestination" ref="queue"/>
+    	<property name="defaultDestination" ref="queue"/>
+    	<!-- the substitute for defaultDestination
+    		<property name="defaultDestinationName" value="mailbox-destination"/>
     	-->
     </bean>
 </beans>
