@@ -30,7 +30,6 @@
 			<artifactId>xbean-spring</artifactId>
 			<version>4.1</version>
 		</dependency>
-		
 	</dependencies>
 
 	<repositories>

@@ -1,9 +1,13 @@
 package org.tobby.jms.spring.server;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.jms.Destination;
 import javax.jms.JMSException;
+import javax.jms.MapMessage;
+import javax.jms.Message;
 import javax.jms.TextMessage;
 
 import org.springframework.context.ApplicationContext;
@@ -19,15 +23,28 @@ public class ReceiveByJmsTemplate {
 	public static void main(String[] args) {
 		ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
 		JmsTemplate jmsTemplate = (JmsTemplate)context.getBean("jmsTemplate");
-		System.out.println(Util.formatDate(new Date()) + "Start to receive message ... ");
+		System.out.println(Util.formatDate(new Date()) + "--Start to receive message ... ");
 		//Using the specified Destination
 		//TextMessage message = (TextMessage)jmsTemplate.receive((Destination)context.getBean("queue"));
 		//no destination specified, the jmsTemplate must have a defaultDestinationName or defaultDestination
-		TextMessage message = (TextMessage)jmsTemplate.receive();
+		//Message message = jmsTemplate.receive();
+		Object message = jmsTemplate.receive();
 		try {
-			String text = message.getText();
 			MessageReceiver receiver = new MessageReceiver();
-			receiver.processMessage(text);
+			if (message instanceof TextMessage) {
+				receiver.processMessage(((TextMessage)message).getText());
+			}
+			if (message instanceof MapMessage) {
+				MapMessage myMessage = (MapMessage)message;
+				receiver.processMessage(myMessage.getString("password"));
+				receiver.processMessage((String)myMessage.getObject("userName"));
+			}
+			if (message instanceof Map) {
+				Map<String, Object> myMap = (Map<String, Object>)message;
+				receiver.processMessage(myMap.toString());
+			}
+		
+			
 		} catch (JMSException ex) {
 			throw JmsUtils.convertJmsAccessException(ex);
 		}
