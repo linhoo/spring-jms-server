@@ -12,6 +12,7 @@ import javax.validation.Valid;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Headers;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
@@ -19,7 +20,8 @@ import org.springframework.validation.annotation.Validated;
 public class AnnotatedJMSListener implements MessageListener {
 
 	@JmsListener(destination="mailbox-destination")
-	public void processOrder(Message message, Session session, 
+	@SendTo("text-dest")
+	public String processOrder(Message message, Session session, 
 			org.springframework.messaging.Message<String> text,
 			@Header("jms_destination") String destination,
 			@Headers Map<String, Object> headers,
@@ -33,6 +35,7 @@ public class AnnotatedJMSListener implements MessageListener {
 		System.out.println(headers.get("jms_destination"));
 		System.out.println(headers);
 		System.out.println("I am payload -- " + payload);
+		return "I LOVE YOU";
 	}
 
 	public void onMessage(Message message) {

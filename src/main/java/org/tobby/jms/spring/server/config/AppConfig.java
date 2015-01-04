@@ -37,11 +37,10 @@ public class AppConfig implements JmsListenerConfigurer {
 
 	public void configureJmsListeners(JmsListenerEndpointRegistrar registrar) {
 		SimpleJmsListenerEndpoint endpoint = new SimpleJmsListenerEndpoint();
-		endpoint.setDestination("mailbox-destination");
+		endpoint.setDestination("text-dest");
 		endpoint.setMessageListener(new AnnotatedJMSListener());
 		endpoint.setId("111");
-		//registrar.registerEndpoint(endpoint);
-		//DefaultJmsHandlerMethodFactory factory = new DefaultJm
+		registrar.registerEndpoint(endpoint);
 		registrar.setMessageHandlerMethodFactory(myJmsHandlerMethodFactory());
 	}
 	
