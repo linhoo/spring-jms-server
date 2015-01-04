@@ -30,6 +30,10 @@
     </bean>
     -->
     <amq:queue id="queue" physicalName="mailbox-destination"/>
+    
+    <amq:queue id="replyQueue" physicalName="replyto_queue"/>
+    
+    <amq:queue id="sessionAwareQueue" physicalName="session-aware"/>
 
 	<bean id="messageHandler" class="org.tobby.jms.spring.server.receive.MessageReceiver"/>
     
@@ -40,4 +44,54 @@
     		<property name="defaultDestinationName" value="mailbox-destination"/>
     	-->
     </bean>
+	
+	<!-- This is the Message Driven Pojo(MDP) -->
+	<bean id="exampleMessageListener" class="org.tobby.jms.spring.server.mdp.ExampleMessageListener"/>
+	
+	<!-- Tis the Message Driven Pojo for SessionAwareMessageListener -->
+	<bean id="exampleSessionAwareMessageListener" 
+		class="org.tobby.jms.spring.server.mdp.SessionAwareMessageListenerExample">
+		<property name="destination" ref="sessionAwareQueue"/>
+	</bean>
+	
+	<!-- This is the MessageListenerAdapter Listener -->
+	<bean id="adapterMessageListener" class="org.springframework.jms.listener.adapter.MessageListenerAdapter">
+		<constructor-arg>
+			<bean class="org.tobby.jms.spring.server.mdp.DefaultMessageDelegate"/>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="textMessageListenerAdapter" class="org.springframework.jms.listener.adapter.MessageListenerAdapter">
+		<constructor-arg>
+			<bean class="org.tobby.jms.spring.server.mdp.DefaultTextMessageDelegate"/>
+		</constructor-arg>
+		<property name="defaultListenerMethod" value="recieve"/>
+		<property name="messageConverter">
+			<null/>
+		</property>
+	</bean>
+	
+	<bean id="responsiveMessageListenerAdapter" class="org.springframework.jms.listener.adapter.MessageListenerAdapter">
+		<constructor-arg>
+			<bean class="org.tobby.jms.spring.server.mdp.DefaultResponsiveTextMessageDelegate"/>
+		</constructor-arg>
+		<property name="defaultListenerMethod" value="recieve"/>
+	</bean>
+		
+	<!-- This is message listener Container -->
+<!-- 	<bean id="jmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="connectionFactory"/>
+		<property name="destination" ref="queue"/>
+		<property name="messageListener" ref="responsiveMessageListenerAdapter"/>
+	</bean> -->
+	
+	<jms:annotation-driven/>
+	
+	<bean id="jmsListenerContainerFactory" class="org.springframework.jms.config.DefaultJmsListenerContainerFactory">
+		<property name="connectionFactory" ref="connectionFactory"/>
+		<property name="concurrency" value="3-10"/>
+	</bean>
+	
+	<bean class="org.tobby.jms.spring.server.annotation.AnnotatedJMSListener"/>
+
 </beans>

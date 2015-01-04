@@ -22,6 +22,9 @@ public class ReceiveByJmsTemplate {
 	@SuppressWarnings("resource")
 	public static void main(String[] args) {
 		ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+	}
+	
+	private void reciveMessage(ApplicationContext context) {
 		JmsTemplate jmsTemplate = (JmsTemplate)context.getBean("jmsTemplate");
 		System.out.println(Util.formatDate(new Date()) + "--Start to receive message ... ");
 		//Using the specified Destination
