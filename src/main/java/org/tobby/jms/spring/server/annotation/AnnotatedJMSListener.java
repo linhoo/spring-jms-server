@@ -13,6 +13,7 @@ import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
@@ -21,7 +22,7 @@ public class AnnotatedJMSListener implements MessageListener {
 
 	@JmsListener(destination="mailbox-destination")
 	@SendTo("text-dest")
-	public String processOrder(Message message, Session session, 
+	public org.springframework.messaging.Message<String> processOrder(Message message, Session session, 
 			org.springframework.messaging.Message<String> text,
 			@Header("jms_destination") String destination,
 			@Headers Map<String, Object> headers,
@@ -35,12 +36,13 @@ public class AnnotatedJMSListener implements MessageListener {
 		System.out.println(headers.get("jms_destination"));
 		System.out.println(headers);
 		System.out.println("I am payload -- " + payload);
-		return "I LOVE YOU";
+		return MessageBuilder.withPayload("I LOVELOVE YOU").setHeader("code", 1234).build();
 	}
 
 	public void onMessage(Message message) {
 		try {
 			System.out.println("This is the MessageListener LOG -" + ((TextMessage)message).getText());
+			System.out.println("Code is " + message.getIntProperty("code"));
 		} catch (JMSException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
